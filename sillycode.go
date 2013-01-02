@@ -25,6 +25,38 @@ func evenletters(word string) string {
 // return a placeword (4 letter code from the place name)
 // this is used when the place name only has one word in it
 func placeword(word string) string {
+  first := string(word[0])
+  rest := vowels.ReplaceAllString(word[1:], "")
+
+  word = first + rest
+  wordSize := len(word)
+
+  if wordSize < 4 {
+
+  } else if wordSize == 4 {
+
+  } else if wordSize == 5 {
+
+  } else if wordSize > 5 {
+
+  }
+
+  return word
+}
+
+// pad place word with X's until it is 4 letters long
+func padfourx(word string) string {
+  wordSize := len(word)
+  switch wordSize {
+	  case 3:
+			word += "X"
+		case 2:
+			word += "XX"
+		case 1:
+			word += "XXX"
+    case 0:
+      word = "XXXX"
+  }
   return word
 }
 
@@ -51,21 +83,16 @@ func pairword(word string) string {
 // Get a get the sillycode for a place name
 func Placename(place string) (string, error) {
 	placeSize := len(place)
+  if placeSize == 0 {
+    return "", errors.New("New place provided")
+  }
+
 	place = strings.ToUpper(place)
 
 	// If the name is shorter than 4 chars, pad with X and don't strip vowels  
 	if placeSize < 4 {
-		switch placeSize {
-		case 3:
-			place += "X"
-		case 2:
-			place += "XX"
-		case 1:
-			place += "XXX"
-		case 0:
-			return "", errors.New("No place provided")
-		}
-		return place, nil
+    place = padfourx(place)
+    return place, nil
 	}
 
 	// If name is exactly 4 chars, just return it
