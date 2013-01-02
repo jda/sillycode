@@ -1,63 +1,68 @@
 package sillycode
 
 import (
+	"bytes"
 	"errors"
+	"math"
 	"regexp"
 	"strings"
-  "math"
-  "bytes"
 )
 
 var vowels = regexp.MustCompile("(a|e|i|o|u)")
 
 // return only even letters from string
 func evenletters(word string) string {
-  var buffer bytes.Buffer
+	var buffer bytes.Buffer
 
-  for i, e := range word {
-    if math.Mod(float64(i), 2) == 0 {
-      buffer.WriteString(string(e))
-    }
-  }
-  return buffer.String()
+	for i, e := range word {
+		if math.Mod(float64(i), 2) == 0 {
+			buffer.WriteString(string(e))
+		}
+	}
+	return buffer.String()
 }
 
 // return a placeword (4 letter code from the place name)
 // this is used when the place name only has one word in it
 func placeword(word string) string {
-  first := string(word[0])
-  rest := vowels.ReplaceAllString(word[1:], "")
+	first := string(word[0])
+	rest := vowels.ReplaceAllString(word[1:], "")
 
-  word = first + rest
-  wordSize := len(word)
+	word = first + rest
+	wordSize := len(word)
 
-  if wordSize < 4 {
+	if wordSize < 4 {
+		word = padfourx(word)
+	} else if wordSize == 5 {
+		first3 := word[:3]
+		last := string(word[len(word)-1])
+		//option := word[:4] // python had this. was part of
+		// multiple return to give users options in case of some
+		// kind of conflict
 
-  } else if wordSize == 4 {
+		word = first3 + last
 
-  } else if wordSize == 5 {
+	} else if wordSize > 5 {
+		word = string(word[0]) + evenletters(word[1:])
+	}
 
-  } else if wordSize > 5 {
-
-  }
-
-  return word
+	return word
 }
 
 // pad place word with X's until it is 4 letters long
 func padfourx(word string) string {
-  wordSize := len(word)
-  switch wordSize {
-	  case 3:
-			word += "X"
-		case 2:
-			word += "XX"
-		case 1:
-			word += "XXX"
-    case 0:
-      word = "XXXX"
-  }
-  return word
+	wordSize := len(word)
+	switch wordSize {
+	case 3:
+		word += "X"
+	case 2:
+		word += "XX"
+	case 1:
+		word += "XXX"
+	case 0:
+		word = "XXXX"
+	}
+	return word
 }
 
 // Turn a word from a place name into a pairword (two letter 
@@ -83,16 +88,16 @@ func pairword(word string) string {
 // Get a get the sillycode for a place name
 func Placename(place string) (string, error) {
 	placeSize := len(place)
-  if placeSize == 0 {
-    return "", errors.New("New place provided")
-  }
+	if placeSize == 0 {
+		return "", errors.New("New place provided")
+	}
 
 	place = strings.ToUpper(place)
 
 	// If the name is shorter than 4 chars, pad with X and don't strip vowels  
 	if placeSize < 4 {
-    place = padfourx(place)
-    return place, nil
+		place = padfourx(place)
+		return place, nil
 	}
 
 	// If name is exactly 4 chars, just return it
@@ -104,13 +109,13 @@ func Placename(place string) (string, error) {
 	wordsSize := len(words)
 
 	if wordsSize == 1 {
-    place = placeword(place)
-  } else if wordsSize == 2 {
+		place = placeword(place)
+	} else if wordsSize == 2 {
 		name1 := pairword(words[0])
 		name2 := pairword(words[1])
 
 		place = name1 + name2
-	} else  {
+	} else {
 		return "", errors.New("Don't know how to handle place names of 3+ words")
 	}
 
